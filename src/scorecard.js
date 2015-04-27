@@ -4,7 +4,6 @@ var Scorecard = function(content) {
   this.DEFAULT_FRAMES = 10;
   this.currentTurn = 0;
   this.currentFrame = 0;
-  this.maxTurns = 20;
   for (var i = 0; i < this.DEFAULT_FRAMES; i++) {
     this.frameRecord.push(new content);
   };
@@ -57,7 +56,8 @@ Scorecard.prototype.incrementTurn = function() {
 }
 
 Scorecard.prototype.checkForBonusRound = function() {
-  if (this.isFinalFrameStrike() || this.isFinalFrameSpare()) this.extraOne = true;
+  if (this.isFinalFrameSpare()) this.extraOne = true;
+  if (this.isFinalFrameStrike()) this.extraOne = true;
   if (this.isFinalFrameStrike()) this.extraTwo = true;
 }
 
@@ -80,20 +80,17 @@ Scorecard.prototype.bowlBonusRound = function(pinsKnockedOver) {
   if (this.extraOne) this.addBonusToCurrentFrameMinus(0, pinsKnockedOver);
   if (this.extraOne && this.isPreviousFrameStrike()) this.addBonusToCurrentFrameMinus(1, pinsKnockedOver);
   this.extraOne = false
-  if (this.extraOne === false && this.extraTwo === true) { 
-    this.addBonusToCurrentFrameMinus(0, pinsKnockedOver);
-    this.extraTwo = false; 
-  };
+  if (this.extraOne === false && this.extraTwo) this.bowlBonusRoundTwo(pinsKnockedOver);
 };
 
+Scorecard.prototype.bowlBonusRoundTwo = function(pinsKnockedOver) {
+  this.addBonusToCurrentFrameMinus(0, pinsKnockedOver);
+  this.extraTwo = false; 
+}
+
 Scorecard.prototype.updateCurrentFrame = function() {
-  if (this.currentTurn >= 20) {
-    this.currentFrame = 9;
-  } else if (this.checkEven(this.currentTurn)) {
-    this.currentFrame = (this.currentTurn) / 2;
-  } else {
-    this.currentFrame = (this.currentTurn - 1) / 2;  
-  };
+  if (this.checkEven(this.currentTurn) && this.currentTurn != 20) { this.currentFrame = (this.currentTurn) / 2} 
+  else { this.currentFrame = Math.floor((this.currentTurn - 1) / 2) };
 };
 
 Scorecard.prototype.checkEven = function(number) {
